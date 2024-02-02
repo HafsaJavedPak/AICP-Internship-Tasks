@@ -28,7 +28,7 @@ def input_weight(index) :
     if weight_isvalid(weight):
         return float(weight)
     else : 
-        return 0
+        return -1
 
 def input_pupilData(total_pupils, returnNames = False) :
     weights = []
@@ -75,19 +75,20 @@ def main():
     print("TASK 2")
     pupils_newWeights = input_pupilData(pupils_num)
     
-    # Ensure both lists have the same length
-    min_length = min(len(pupils_newWeights), len(pupils_weights))
     
     pupils_weightDifference = []
-    for i in range(min_length):
-        pupils_weightDifference.append(pupils_newWeights[i] - pupils_weights[i])
+    for i in range(pupils_num):
+        if pupils_newWeights[i] or pupils_weights[i] == -1 :
+            pupils_weightDifference.append(-1)
+        else:
+            pupils_weightDifference.append(pupils_newWeights[i] - pupils_weights[i])
     
     # task 3 
     input('Press any key to continue to TASK 3')
     os.system('cls')
     print("TASK 3")
-    for i in range(min_length):
-        if abs(pupils_weightDifference[i]) >= 2.5:
+    for i in range(pupils_num):
+        if abs(pupils_weightDifference[i]) >= 2.5 and pupils_weightDifference[i] != -1:
             print(f"Pupil-{i+1}: {pupils_names[i]} has", "gained" if pupils_weightDifference[i] > 0 else "lost", f"{abs(pupils_weightDifference[i])} kg.")
 
 if __name__ == "__main__":
