@@ -25,26 +25,39 @@ def weight_isvalid (weight):
         print(f"Invalid weight: {e}")
         return False
 
-def input_weights(total_pupils) :
+def input_weight(index) :
+    # for loop with limit is used to avoid an infinte loop
+    for _ in range(5):
+        weight = input(f"Input weight of pupil#{index+1} : ")
+        if weight_isvalid(weight):
+            break
+    if weight_isvalid(weight):
+        return weight
+    else : 
+        return -1
+
+def input_pupilData(total_pupils, returnNames = False) :
     weights = []
-    names = []
+    if returnNames :
+        names = []
 
     for i in range(total_pupils):
-        name = input(f"Input name of pupil#{i+1} : ")
+        if returnNames :
+            name = input(f"Input name of pupil#{i+1} : ")
         
-        # for loop with limit is used to avoid an infinte loop
-        for _ in range(5):
-            weight = input(f"Input weight of pupil#{i+1} : ")
-            if weight_isvalid(weight):
-                break
-        
-        if weight_isvalid(weight):
-            names.append(name)
+        weight = input_weight(i)
+        # if user has still not entered valid weight
+        if weight == -1 :
+            if returnNames :
+                names.append(name)
             weights.append(weight)
 
-    return names, weights
+    if returnNames :
+        return names, weights
+    else :  
+        return weights
 
-def output_weights(weights, names):
+def output_pupilsData(names, weights):
     print("---------------------------------------")
     print("Printing the names and weights of pupils.")
     print("---------------------------------------")
@@ -54,9 +67,33 @@ def output_weights(weights, names):
 
     print("---------------------------------------")
 
-
 def main():
-    weight_isvalid('qe')
+    # task 1 
+    print("TASK 1")
+    pupils_num = 2
+    pupils_names = []
+    pupils_weights = []
+    pupils_names , pupils_weights = input_pupilData(pupils_num , True)
+    output_pupilsData(pupils_names, pupils_weights)
+
+    print("\n-------------------------------------\n")
+
+    # task 2
+    print("TASK 2")
+    pupils_newWeights = input_pupilData(pupils_num)
+    pupils_weightDifference = []
+    for i in range(pupils_num):
+        pupils_weightDifference.append(pupils_newWeights[i] - pupils_weights[i])
+    output_pupilsData(pupils_names, pupils_newWeights)
+
+    print("\n-------------------------------------\n")
+
+    # task 3 
+    print("TASK 3")
+    for i in range(pupils_num) :
+        if abs(pupils_weightDifference[i]) >= 2.5 :
+            print(f"{pupils_names[i]} has ", "gained" if pupils_weightDifference[i] > 0 else "lost", f"{abs(pupils_weightDifference[i])} kg.")
+
 
 if __name__ == "__main__":
     main()
