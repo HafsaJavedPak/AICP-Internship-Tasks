@@ -1,10 +1,4 @@
-""""A school keeps records of the weights of each pupil. 
-The weight, in kilograms, of each pupil isrecorded on the first day of term. 
-Input and store the weights and names recorded for a class of30 pupils. 
-You must store the weights in a one-dimensional array and the names in another one-dimensional array. 
-All the weights must be validated on entry and any invalid weights rejected. 
-Youmust decide your own validation rules. You may assume that the pupils’ names are unique. 
-Outputthe names and weights of the pupils in the class"""
+import os
 
 def weight_isvalid (weight):
     try :
@@ -32,9 +26,9 @@ def input_weight(index) :
         if weight_isvalid(weight):
             break
     if weight_isvalid(weight):
-        return weight
+        return float(weight)
     else : 
-        return -1
+        return 0
 
 def input_pupilData(total_pupils, returnNames = False) :
     weights = []
@@ -46,11 +40,9 @@ def input_pupilData(total_pupils, returnNames = False) :
             name = input(f"Input name of pupil#{i+1} : ")
         
         weight = input_weight(i)
-        # if user has still not entered valid weight
-        if weight == -1 :
-            if returnNames :
-                names.append(name)
-            weights.append(weight)
+        if returnNames :
+            names.append(name)
+        weights.append(weight)
 
     if returnNames :
         return names, weights
@@ -60,7 +52,6 @@ def input_pupilData(total_pupils, returnNames = False) :
 def output_pupilsData(names, weights):
     print("---------------------------------------")
     print("Printing the names and weights of pupils.")
-    print("---------------------------------------")
 
     for i, (name, weight) in enumerate(zip(names, weights), 1):
         print(f"Pupil #{i}: Name: {name}, Weight: {weight} kg")
@@ -73,27 +64,31 @@ def main():
     pupils_num = 2
     pupils_names = []
     pupils_weights = []
-    pupils_names , pupils_weights = input_pupilData(pupils_num , True)
+    pupils_names, pupils_weights = input_pupilData(pupils_num, True)
     output_pupilsData(pupils_names, pupils_weights)
 
     print("\n-------------------------------------\n")
 
     # task 2
+    input('Press any key to continue to TASK 2')
+    os.system('cls')
     print("TASK 2")
     pupils_newWeights = input_pupilData(pupils_num)
+    
+    # Ensure both lists have the same length
+    min_length = min(len(pupils_newWeights), len(pupils_weights))
+    
     pupils_weightDifference = []
-    for i in range(pupils_num):
+    for i in range(min_length):
         pupils_weightDifference.append(pupils_newWeights[i] - pupils_weights[i])
-    output_pupilsData(pupils_names, pupils_newWeights)
-
-    print("\n-------------------------------------\n")
-
+    
     # task 3 
+    input('Press any key to continue to TASK 3')
+    os.system('cls')
     print("TASK 3")
-    for i in range(pupils_num) :
-        if abs(pupils_weightDifference[i]) >= 2.5 :
-            print(f"{pupils_names[i]} has ", "gained" if pupils_weightDifference[i] > 0 else "lost", f"{abs(pupils_weightDifference[i])} kg.")
-
+    for i in range(min_length):
+        if abs(pupils_weightDifference[i]) >= 2.5:
+            print(f"Pupil-{i+1}: {pupils_names[i]} has", "gained" if pupils_weightDifference[i] > 0 else "lost", f"{abs(pupils_weightDifference[i])} kg.")
 
 if __name__ == "__main__":
     main()
