@@ -8,7 +8,6 @@ def weight_isvalid (weight):
         return False
 
     try:
-        weight = float(weight)
         if weight < 0:
             raise ValueError("Weight cannot be negative.")
         # min and max human weights in kg.
