@@ -1,14 +1,3 @@
-"""
-# NEED TO IMPLEMENT
-- error handling ✅
-- input data 
-- cost per person
-- no. of carers?
-- collect money.. don't allow anyone to pass less than what is required
-- place for other people on coach
-- compare costs
-"""
-
 # To determine whether inputed value is int or not
 def isInt(temp_val, custom_info = "inputted value", positive_only = False):
     try :
@@ -30,6 +19,8 @@ def isInt(temp_val, custom_info = "inputted value", positive_only = False):
 
 class senior_citizens_outing:
 
+    outing_id = 0
+    total_grps = 0
     def __init__(self):
         self.data_snrs = {} 
         self.cost_coach = 0
@@ -40,10 +31,12 @@ class senior_citizens_outing:
         self.amount_paid = 0
         self.amount_total = 0
         self.notPaid_people = set()
+        self.outing_id = senior_citizens_outing.total_grps
+        senior_citizens_outing.total_grps += 1
     
     def input_data(self):
         for _ in range(5):
-            self.total_snrs = self.input_total_snrs()
+            self.input_total_snrs()
             if self.total_snrs > 0:
                 break
         self.carers = 3 if self.total_snrs > 24 else 2
@@ -51,24 +44,26 @@ class senior_citizens_outing:
         if self.total_snrs != -1 :
             self.determine_cost()
             self.input_names()
+        else:
+            print("This group won't go to the outing, the total number of people entered does not satisfy criteria.")
 
     # To input total number of snr citizens
     def input_total_snrs (self) :
-        self.total_snrs = input('Input the total number of senior citizens')
+        self.total_snrs = input(f'Input the total number of senior citizens of Group - {self.outing_id}: ')
         if not isInt(self.total_snrs, 'total number of senior citizens'):
             self.total_snrs = -1
-
-        try:
-            self.total_snrs = int(self.total_snrs)
-            if 10 > self.total_snrs or self.total_snrs > 36:
-                raise ValueError("The total number of serior citizens should be in between 10 and 36.")
-        except ValueError as e:
-            print(e)
-            self.total_snrs = -1
+        else:
+            try:
+                self.total_snrs = abs(int(self.total_snrs))
+                if 10 > self.total_snrs or self.total_snrs > 36:
+                    raise ValueError("The total number of serior citizens should be a number between 10 and 36.")
+            except ValueError as e:
+                print(e)
+                self.total_snrs = -1
     
     def input_names (self, add_more= False , add_more_number = 0):
         for i in range( 0 if (not add_more) else self.total_snrs, self.total_snrs + add_more_number):
-            self.data_snrs[i] = [input(f"{i+1} - Name of citizen")]
+            self.data_snrs[i] = [input(f"{i+1} - Name of citizen : ")]
             self.data_snrs[i].append(False)
 
     # determining cost and there's SOME ERROR HANDLING
@@ -87,60 +82,87 @@ class senior_citizens_outing:
                 self.cost_meal = 13.00
                 self.cost_theature = 19.00
             
-            self.cost_total = self.cost_coach + self.cost_meal + self.cost_theature
-            self.cost_perPerson = self.cost_total/self.total_snrs
-        
+            self.cost_total = round(self.cost_coach + self.cost_meal + self.cost_theature, 3)
+            self.cost_perPerson = round(self.cost_total/self.total_snrs,3)
+        else:
+            pass
+
     # is there room for more people in the coach
     def extra_space(self):
-        for i in [16,26,39]:
-            if i > self.total_snrs:
-                return (i - self.total_snrs)
-        
-        return 0
+        if self.total_snrs != -1 :
+            for i in [16,26,39]:
+                if i > self.total_snrs:
+                    return (i - self.total_snrs)
+            return 0
+        else :
+            return 0
     
     # final step
     def lets_go(self):
-        if self.extra_space():
-            if input('Anyone else wants to go? \ny/n\n') == 'y':
-                extras = abs(int(input('How many?\n')))
-                if (self.total_snrs + extras) > 39:
-                    print(f'Total of {39 - self.total_snrs} people added. Enter their names')
-                    self.input_names(True, 39 - self.total_snrs)
-                    self.total_snrs = 39
-                else:
+        if self.total_snrs != -1 :
+            print("-------------------------------------------------")
+            print(f"Outing ID : {self.outing_id}.\n Total amount of seniors are {self.total_snrs}")
+            if self.extra_space():
+                if input('Anyone else wants to go? : y/n\n') == 'y':
+                    extras = abs(int(input('How many?\n')))
                     for i in [16, 26, 39]:
-                        if (self.total_snrs + extras) <= i:
-                            print(f"Total of {extras} people added. Enter their names.")
+                        if (self.total_snrs + extras) > i:
+                            print(f'Total of {i - self.total_snrs} people added. Enter their names')
                             self.input_names(True, i - self.total_snrs)
+                            self.total_snrs = i
+                            break
+                        else:
+                            print(f"Total of {extras} people added. Enter their names.")
+                            self.input_names(True, extras)
                             self.total_snrs += extras 
                             break  
-        
-        print(f"Please pay your share.{self.cost_perPerson}$")
-        for i in range(self.total_snrs):
-            for _ in range(5):
-                pay = int(input(f"Citizen - {i}: Please pay your share."))
-                if pay < self.cost_perPerson:
-                    print("You have paid less")
-                    self.notPaid_people.add(i)
-                elif pay == self.cost_perPerson:
-                    self.data_snrs[i][1] = True
-                    # not using set.remove() because I dont want to raise esxpcetion when element is not in set
-                    self.notPaid_people.discard(i)
-                    break
-                else :
-                    self.notPaid_people.discard(i)
-                    self.data_snrs[i][1] = True
-                    print(f"Returning {pay - self.cost_perPerson}$ to {self.data_snrs[i][0]}")
-                    break
-        
-        
-        for id in self.notPaid_people:
-            print(f"Citizen {id}: {self.data_snrs[id][0]} has not paid their share.")
-            self.data_snrs[id].pop()
-        
-        if self.notPaid_people:
-            print("Removing these people from the outing list.")
+            
+            print(f"Please pay your share.{self.cost_perPerson}$")
+            for i in range(self.total_snrs):
+                for _ in range(5):
+                    pay = float(input(f"Citizen - {i}: Please pay your share."))
+                    if pay < self.cost_perPerson:
+                        print("You have paid less")
+                        self.notPaid_people.add(i)
+                    elif round(pay,1) == round(self.cost_perPerson,1):
+                        self.data_snrs[i][1] = True
+                        # not using set.remove() because I dont want to raise esxpcetion when element is not in set
+                        self.notPaid_people.discard(i)
+                        break
+                    else :
+                        self.notPaid_people.discard(i)
+                        self.data_snrs[i][1] = True
+                        print(f"Returning {pay - self.cost_perPerson}$ to {self.data_snrs[i][0]}")
+                        break
+            
+            for id in self.notPaid_people:
+                print(f"Citizen {id}: {self.data_snrs[id][0]} has not paid their share.")
+                self.data_snrs[id].pop()
+            
+            if self.notPaid_people:
+                print(f"Removing these people from Outing # {self.outing_id}.")
 
-
-                
+        else :
+            print(f"Group {self.outing_id} does not exist as invalid data was entered.")
     
+    # outputing data
+    def output(self):
+        print("------------------------------")
+        if self.total_snrs != -1 :
+            print(f"The following people are going on Outing # {self.outing_id}")
+            for id, data in self.data_snrs.items():
+                print(f"ID : {id}, Name : {data[0]}")
+        else :
+            print(f"Group {self.outing_id} does not exist as invalid data was entered.")
+    
+def main():
+    num_outing = abs(int(input("How many groups do you want to go on an outing?: ")))
+    outings = [senior_citizens_outing() for _ in range(num_outing)]
+
+    for i in range(num_outing):
+        outings[i].input_data()
+        outings[i].lets_go()
+        outings[i].output()
+    
+if __name__ == "__main__":
+    main()
