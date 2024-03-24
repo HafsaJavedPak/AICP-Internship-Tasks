@@ -10,4 +10,3 @@
   1. ID
   2. item u want to bid
   3. bid, condition : bid > existing bids
-
