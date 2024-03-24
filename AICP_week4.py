@@ -12,8 +12,6 @@ class Item:
     def __str__(self) -> str:
         return f"Item Number: {self.item_number}, Description: {self.description}, Reserve Price: {self.reserve_price}, Number of Bids: {self.bids_num}, Highest Bid: {self.highest_bid}"
 
-
-
 class Buyer:
     buyer_id = 0
 
