@@ -1,3 +1,8 @@
+from __future__ import annotations
+from typing import Type
+
+
+
 class Ticket:
     id = 0
     num_days = 0
@@ -15,34 +20,34 @@ class Ticket:
         "evening barbecue": 5.00
     }
 
-    def __init__(self, id, group, extra) -> None:
+    def __init__(self, id, group, extra, num_days) -> None:
         self.id = id
         self.group = group
-        self.extra_attractions = extra
+        self.per_attractions = extra
+        self.num_days = num_days
         self.calculate_cost()        
-
+    
     @staticmethod
-    def ticket_options(self) -> None:
-        choice = int(choice)
-        for type,cost in self.ticket_prices.items():
-            print(f"Cost for one {type} is 
-                  ${cost[1]} for one ticket and ${cost[2]} for two tickets")
+    def ticket_options() -> None:
+        for type, cost in Ticket.ticket_prices.items():
+            print(f"Cost for one {type} is ${cost[1]} for one ticket and ${cost[2]} for two tickets")
         print("\nExtra attractions and prices:")
-        for attraction, price in self.extra_attractions.items():
-            print(f"{attraction}: ${price}") 
+        for attraction, price in Ticket.extra_attractions.items():
+            print(f"{attraction}: ${price}")
+    
 
     def calculate_cost(self) -> None:
         self.cost = 0
         self.cost = self.ticket_prices[self.group][self.num_days]
-        if self.extra_attractions:
-            for attraction in self.extra_attractions:
-                self.cost += self.extra_attractions[attraction]
+        if isinstance(self.per_attractions, list):
+            for attraction in self.per_attractions:
+                self.cost += self.extra_attractions[attraction.strip()]
 
     def display(self) -> None:
         print(f"Ticket ID: {self.id}")
         print(f"Group: {self.group}")
-        print(f"Extra attractions: 
-              {', '.join(self.extra_attractions) if isinstance(self.extra_attractions, list) else self.extra_attractions}")
+        print(f"Extra attractions:", 
+              f"{', '.join(self.per_attractions) if isinstance(self.per_attractions, list) else self.per_attractions}")
         print(f"Cost: ${self.cost}")
 
 
@@ -54,17 +59,31 @@ class Bookings():
         self.num_people = num_people
     
     def book(self) -> None:
-        Bookings.bookings += 1
+        Bookings.bookings_num += 1
         Ticket.ticket_options()
         days = int(input("For how many days do you  want to book a ticket? (1/2)"))
         group = input("Which group are you a part of?").lower()
         choice = True if (input("Do you want extra attractions? (y/n)").lower() == "y") else False
         if choice:
-            attractions = input("Which attractions do you want to add?").split(",").strip()
+            attractions = input("Which attractions do you want to add?").split(",")
         else:
             attractions = None
-        self.bookings.append(Ticket(Bookings.bookings, group, attractions))
+        temp = Ticket(id=Bookings.bookings_num, group=group, num_days=days, extra=attractions)
+        
+        if self.pay(temp):
+            print(f"Ticket - {Bookings.bookings_num} has been booked.")
+            self.bookings.append(temp)
+        else:
+            print(f"Ticket - {Bookings.bookings_num} wasn't paid sufficient amount, Ticket removed.")
+            Bookings.bookings_num -= 1
 
+
+
+    def pay(self, temp: Type[Ticket]) -> bool:
+        temp.calculate_cost()
+        temp.display()
+        return (True if ( float(input(f"\nKindly pay ${temp.cost}")) >= temp.cost) else False)
+        
     def check_best_value(self) -> None:
         for booking in self.bookings:
             print(f"\nBooking ID: {booking.id}")
@@ -82,12 +101,43 @@ class Bookings():
                 family_cost = Ticket.ticket_prices["family"][booking.num_days] * num_families_needed
                 alternatives.append(("Family Tickets", family_cost))
 
+            elif booking.group == "family":
+                num_people = len(booking.extra_attractions) + 1  # Include the person booking
+                num_families_needed = num_people // 5
+                if num_people % 5 != 0:
+                    num_families_needed += 1
+                single_family_cost = Ticket.ticket_prices["family"][booking.num_days]
+                total_family_cost = single_family_cost * num_families_needed
+                alternatives.append(("Multiple Family Tickets", total_family_cost))
+
             best_alternative, best_cost = min(alternatives, key=lambda x: x[1])
 
             if best_cost < booking.cost:
-                print(f"Better Option: {best_alternative} for ${best_cost}")
+                print(f"Better Option: {best_alternative} for ${best_cost} of Ticket - {booking.id}")
+                switch = input(f"Do you want to switch to {best_alternative}? (y/n): ").lower()
+                if switch == 'y':
+                    self.switch_ticket(booking.id, new_ticket=booking)
             else:
-                print("Current Cost is the Best Value!")
+                print(f"Current Cost of Ticket - {booking.id} is the Best Value!")
+
+
+    def switch_ticket(self, booking_id: int, new_ticket: Ticket) -> None:
+        for booking in self.bookings:
+            if booking.id == booking_id:
+                old_cost = booking.cost
+                new_cost = new_ticket.cost
+                refund_amount = old_cost - new_cost
+                if refund_amount > 0:
+                    print(f"Refunding ${refund_amount} for Booking ID: {booking_id}")
+                    print("Switching to the new ticket...")
+                    booking.cost = new_cost
+                    booking.group = new_ticket.group
+                    booking.extra_attractions = new_ticket.extra_attractions
+                    return
+                else:
+                    print("The new ticket is not cheaper. No refund needed.")
+                    return
+        print(f"Booking ID {booking_id} not found.")
 
     def display_bookings(self) -> None:
         print("All bookings and their details:")
